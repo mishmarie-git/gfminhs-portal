@@ -390,25 +390,41 @@
 
         document.getElementById("installButton").addEventListener("click", async () => {
 
-            if (!deferredPrompt) {
+  // Android / Chrome and other browsers that support the install prompt
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
 
-                alert(
-                    "Your browser does not currently offer automatic installation. " +
-                    "Use your browser menu and choose 'Add to Home Screen'."
-                );
+    const { outcome } = await deferredPrompt.userChoice;
 
-                return;
-            }
+    console.log("Install result:", outcome);
 
-            deferredPrompt.prompt();
+    deferredPrompt = null;
+    return;
+  }
 
-            const { outcome } = await deferredPrompt.userChoice;
+  // iPhone / iPad Safari
+  const isIOS =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+    !window.MSStream;
 
-            console.log("Install result:", outcome);
+  if (isIOS) {
+    alert(
+      "To install GFMINHS Portal on your iPhone/iPad:\n\n" +
+      "1. Tap the Share button in Safari.\n" +
+      "2. Scroll down and tap 'Add to Home Screen'.\n" +
+      "3. Tap 'Add'.\n\n" +
+      "The GFMINHS Portal will then appear on your Home Screen."
+    );
+    return;
+  }
 
-            deferredPrompt = null;
-
-        });
+  // Android / other browsers without automatic prompt
+  alert(
+    "To install GFMINHS Portal:\n\n" +
+    "Open your browser menu (⋮) and choose " +
+    "'Install app' or 'Add to Home screen'."
+  );
+});
 
 
         /*
